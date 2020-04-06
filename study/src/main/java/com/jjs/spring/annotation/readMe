@@ -1,0 +1,45 @@
+##Spring中通过注解实现依赖注入得所有方式：
+
+1）Autowired 注解：
+2）Qualifier 注解：
+3）Resource 注解：
+4）Primary 注解：
+5）Bean 注解：
+
+1）Autowired 注解：
+    实现依赖注入，spring容器会对bean中所有字段、方法进行遍历，标注@Autowired注解都会进行依赖注入
+   @Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.ANNOTATION_TYPE})
+   @Retention(RetentionPolicy.RUNTIME)
+   @Documented
+   public @interface Autowired {
+
+   	boolean required() default true;
+
+   }
+   当value为true时候，找不到匹配就会报错
+
+  查找过程：查找该类型得集合，如果有Qualifier则会安装该值进行过滤，结果为空且为必须时候报错；
+           如果有类中Primary，则会找到直接返回。最后按照字段名称查找
+
+   注意：下面得类型T必须是接口
+       1）将指定类型的所有bean注入到集合中：
+       @Autowired
+       List<T> lists;
+       则将T类型得对象装入lists中
+
+       2）将指定类型得所有bean注入到map中：
+       @Autowired
+       Map<String, T> maps;
+       其中，key = bean的名， value = T
+
+
+2）Qualifier 注解：
+    限定符作用：当一个类有多个实现时候，可以通过该注解进行特定实列进行过滤。
+
+
+3）Resource 注解：
+    是javax中定义的，这个注解可以用在任何类型上，方法参数只能有一个值。
+    查找过程：先按照值查找，然后按照类型填充
+
+4）Primary 注解：
+    依赖注入时候，当有多个候选者时候，可以指定那个作为主要候选者

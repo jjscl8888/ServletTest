@@ -1,0 +1,321 @@
+##
+    1)Volatile -- 解决可见性问题
+    使用该在字段修饰变量有如下特点：
+        1.1）线程中读取时候，每次都会从主存中读取共享变量的最新值，然后将其复制到工作内存；
+        2.1）线程修改了工作变量中的变量副本，修改后会立即刷新到主存
+
+        private volatile static boolean flag = true;
+
+        @Test
+        public void VolitatileTest() throws InterruptedException {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    while(flag) {
+                        System.out.println("======");
+                        try {
+                            Thread.sleep(1000);
+
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+
+            t.start();
+            System.out.println("--------");
+            Thread.sleep(5000);
+            flag = false;
+
+            t.join();
+            System.out.println("+++++++++++++++");
+        }
+
+
+
+   2、线程组：我们可把线程归属某个组中，线程组中可包含多个线程以及线程组。
+            ThreadGroup threadGroup = new ThreadGroup("thread-group-1");
+            Thread t1 = new Thread(threadGroup, new R1(), "t1");
+            Thread t2 = new Thread(threadGroup, new R1(), "t2");
+
+            threadGroup1.interrupt();
+            中断该线程组下所有的线程
+
+   3、用户线程和守护线程
+    守护线程是一些特殊得线程，当系统只剩下守护线程的时候，java虚拟机会自动退出。
+        设置守护线程时候，要在start（）调用之前。
+        线程默认是默认继承父线程这些属性
+
+    4、线程安全和synchronized
+        造成线程安全主要诱因：
+        4.1）存在共享数据
+        4.2）存在多个线程操作共享数据
+      synchronized关键字：
+        作用1：可以保证同一时刻，只有一个线程可以执行某个方法或者某个代码块
+        作用2：可以保证一个线程得变化被其他线程所看到（保证可见性）
+
+       4.3）作用于实例需要注意问题：
+        实例方法上加上synchronized，线程安全得前提，多个线程操作同一个实例
+        作用于静态方法上，锁的对象是当前得class对象
+
+        注意：局限性:当线程获取锁时候，获取不到锁将会一直阻塞；如果获取锁得线程阻塞，其他线程将一直等待
+        另外：wait()/notify()被使用synchronized代码块中。
+
+
+    5、中断线程方式：
+        5.1)线程中不含阻塞状态时候，通过volatile状态位
+        5.2）通过线程自带的中断标志
+    public void test2() throws InterruptedException {
+    Thread thread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException e) {
+                    // 抛出该异常时候，会清除中断标志位
+                    Thread.currentThread().interrupt();
+
+                }
+                if (Thread.currentThread().isInterrupted()) {
+                    //该函数只会判断是否中断，但是不会清楚中断标志位
+                    System.out.println("=========");
+                    break;
+                }
+            }
+        }
+    });
+    注意：当线程处于阻塞或者试图执行一个阻塞操作时候，可以使用Thread.interrupt()中断
+        该线程，
+
+
+## JUC java.util.concurrent
+1) ReentrantLock 是Lock得默认实现
+    可重入锁/可中断锁/（支持公平和非公平）
+
+    注意：unlock操作放在finally中，防止因为异常无法释放锁
+        lock和unlock需要成对出现
+    private void add(int i) {
+        try {
+            lock.lock();
+            sum += i;
+        } finally {
+
+            lock.unlock();
+        }
+    }
+
+    可中断锁使用lock.lockInterruptibly()方法，当线程调用interrupt方法会触发中断
+
+2）Condition
+    通过和Lock配合使用，完成等待/通知机制
+    public class BlockingQueue<T> {
+        private int size;
+
+        LinkedList<T> list = new LinkedList<>();
+
+        private ReentrantLock lock = new ReentrantLock();
+
+        private Condition notFull = lock.newCondition();
+        private Condition notEmpty = lock.newCondition();
+
+        public BlockingQueue(int size) {
+            this.size = size;
+        }
+
+        public void enqueue(T e) throws InterruptedException {
+            lock.unlock();
+            try {
+                while (list.size() == size) {
+                    notFull.await();
+                }
+                list.add(e);
+                System.out.println("==");
+                notEmpty.signal();
+
+            } finally {
+                lock.unlock();
+            }
+        }
+
+        public T dequeue() throws InterruptedException {
+            T e;
+            lock.lock();
+            try {
+                if (list.size() == 0) {
+                    notEmpty.await();
+                }
+                e = list.removeFirst();
+                System.out.println("--------");
+                notFull.signal();
+                return e;
+            } finally {
+                lock.unlock();
+            }
+        }
+    }
+    总结：在使用await/notify等方法之前，先获取锁。signal（）在await()方法之前，将无法唤醒。
+
+3）LockSupport
+    每个线程都有一个许可，permit只有两个值1和0，默认为0；
+    1）当调用unpack（thread）时候，就会将线程许可置为1，调用多个时候，不会累加;
+    2)当调用pack(）方法时候，许可变为0，当前线程阻塞。
+    3）唤醒方式：
+        3.1）调用unpack()方法；
+        3.2）调用等待线程得interrupt（）方法
+    注意：唤醒方法不管在等待之前还是之后调用，线程都能够被唤醒。
+
+
+4）Semaphore信号量
+    常用场景：限流
+    4.1)该信号量可能使用acquire时候失败，故释放时候，需要判断是否获取成功才判断是否释放。
+     Runnable runnable = () -> {
+        boolean flag = false; //(作为是否获取锁得标志，)
+        try {
+            semaphore.acquire();
+            flag =true;
+            System.out.println("======");
+            TimeUnit.SECONDS.sleep(3);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            if (false) {
+                semaphore.release();
+            }
+            System.out.println("----------");
+        }
+    };
+
+5）CountDownLatch
+    也称为闭锁，它可以是一个或者一批线程在闭锁上等待，等到其他线程执行完成后，闭锁才打开。
+    5.1）使用步骤：
+        a）创建CountDown对象；
+        b）调用其实例方法await()
+        c）调用countDown()方法
+        d）当计数器变为0时候，await()方法会返回
+
+6）CyclicBarrier
+    也称为循环屏障，它使得等待的线程达到一定数量之后再让他继续执行。
+    await()方法，是的线程数加一。直到达到设置得屏障为止。
+    用户可以自定义barrierAction，当阻塞线程数达到设定的值之后就会执行该方法
+
+    注意：当计数器减为0时候该值被重置，意味着可以重复使用。
+
+
+### 线程池：
+    实现原理：
+        1）是否已经达到核心线程数量，没有创建新线程；否则第二部
+        2）线程池中得工作队列是否已满，若未满将任务丢在工作队列中；否则进行第三步
+        3）是否达到最大线程数，若未达到，创建新线程；否则交给线程池的饱和策略。
+
+     使用步骤：
+        创建线程池，调用线程池得方法，关闭线程池
+
+    public void test1() throws InterruptedException {
+         ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(
+                 3,
+                 5,
+                 10,
+                 TimeUnit.SECONDS,
+                 new ArrayBlockingQueue<Runnable>(5)
+                 , Executors.defaultThreadFactory(),
+                 new ThreadPoolExecutor.AbortPolicy()
+         );
+
+         CountDownLatch countDownLatch = new CountDownLatch(10);
+         for (int i = 0; i < 10; i++) {
+             int j = i;
+             String taskName = "任务" + j;
+             poolExecutor.submit(() -> {
+                 try {
+                     TimeUnit.SECONDS.sleep(10);
+                 } catch (InterruptedException e) {
+                     e.printStackTrace();
+                 }
+                 System.out.println(Thread.currentThread().getName());
+                 countDownLatch.countDown();
+             });
+         }
+         countDownLatch.await();
+
+         poolExecutor.shutdown();
+     }
+1）四种常见得队列
+     a）ArrayBlockingQueue
+     b）LinkedBlockingQueue
+     c）SynchronousQueue
+     d）PriorityBlockingQueue(按照优先级进行处理)
+2）四种常见饱和处理策略
+    直接抛出异常
+    丢弃
+    丢弃队列中最前的任务
+    不处理，直接丢弃
+3）2种关闭线程方法--给工作线程interrupt方法进行中断
+    shutdown:线程池不再接受新任务，将内部已经提交的任务处理完毕，在进行退出
+    shutdownNow:线程池将未处理得任务都移除，正在处理的任务处理完毕，工作线程退出
+
+4）Executor框架主要包含3个部分：
+    4.1）任务相关：
+        实现Runnable和Callable接口
+    4.2）任务执行相关：
+        涉及Executor接口
+    4.3）异步计算结果相关：
+        包含Future接口
+
+## Unsafe类 -- 因为CAS, pack/unpack都是基于该类实现
+    该类只能通过反射获取unsafe字段。
+@Before
+public void before() throws NoSuchFieldException, IllegalAccessException {
+    Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+    theUnsafe.setAccessible(true);
+    unsafe = (Unsafe)theUnsafe.get(null);
+
+    Field countFiled = UnsafeTest.class.getDeclaredField("count");
+
+    countOffset = unsafe.staticFieldOffset(countFiled);
+}
+
+
+## CompletableFuture类
+1）runAsync -- 不支持返回结果
+2）supplyAsync -- 可以支持返回值
+3）whenComplete -- 是执行当前任务的线程执行完成继续执行
+4）thenApply -- 当一个线程依赖另一个线程，把两个线程串行化起来；
+5）handle -- 是执行任务完成时对结果的处理
+
+
+###### 总结：
+1）实现等待/唤醒机制
+    1.1)synchronized/wait/notify
+    1.2)Lock/condition/await.notify
+    1.3)LockSupport/pack/unpack（对于unpack()在pack（）之前还是之后调用，都能被唤醒）
+
+2）线程join()方法：
+    public final synchronized void join(long millis)
+    throws InterruptedException {
+        long base = System.currentTimeMillis();
+        long now = 0;
+
+        if (millis < 0) {
+            throw new IllegalArgumentException("timeout value is negative");
+        }
+
+        if (millis == 0) {
+            while (isAlive()) {
+                wait(0);
+            }
+        } else {
+            while (isAlive()) {
+                long delay = millis - now;
+                if (delay <= 0) {
+                    break;
+                }
+                wait(delay);
+                now = System.currentTimeMillis() - base;
+            }
+        }
+    }
+    其内部，synchronized和wait()实现，当被调用得线程执行完毕后，由jvm自动调用notifyAll方法
+
+

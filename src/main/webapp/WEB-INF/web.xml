@@ -1,0 +1,80 @@
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+  <display-name>Archetype Created Web Application</display-name>
+
+  <servlet>
+  <servlet-name>Test</servlet-name>
+  <servlet-class>com.jjs.HelloServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Test</servlet-name>
+    <url-pattern>/HelloServlet</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>CookieTest</servlet-name>
+    <servlet-class>com.jjs.cookie.CookieTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>CookieTest</servlet-name>
+    <url-pattern>/cookie</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>Display</servlet-name>
+    <servlet-class>com.jjs.servlet.DisplayHeader</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Display</servlet-name>
+    <url-pattern>/display</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>SessionTest</servlet-name>
+    <servlet-class>com.jjs.SessionTest</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>SessionTest</servlet-name>
+    <url-pattern>/session</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>Refresh</servlet-name>
+    <servlet-class>com.jjs.servlet.RefreshServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Refresh</servlet-name>
+    <url-pattern>/refresh</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>UploadServlet</servlet-name>
+    <servlet-class>com.jjs.upload.UploadServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>UploadServlet</servlet-name>
+    <url-pattern>/upload</url-pattern>
+  </servlet-mapping>
+
+  <filter>
+    <filter-name>FilterTest</filter-name>
+    <filter-class>com.jjs.filter.LogFilter</filter-class>
+    <init-param>
+      <param-name>site</param-name>
+      <param-value>jjs</param-value>
+    </init-param>
+  </filter>
+  <filter-mapping>
+    <filter-name>FilterTest</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+</web-app>

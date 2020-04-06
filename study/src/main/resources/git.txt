@@ -1,0 +1,3 @@
+## git init和git init –bare的区别
+使用git init初始化得版本库，用户也可以在该目录下执行所有git操作。
+-bare 创建一个裸仓库，只保存git历史提交得版本信息，而不允许用户在上面执行各种git操作。

@@ -1,0 +1,22 @@
+   <servlet>
+      <servlet-name>Test</servlet-name>
+      <servlet-class>com.jjs.HelloServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>Test</servlet-name>
+    <url-pattern>/HelloServlet</url-pattern>
+  </servlet-mapping>
+
+ ### Servlet是一个容器，将http协议封装，并输出
+ Java Servlet 是运行在 Web 服务器或应用服务器上的程序，它是作为来自 Web 浏览器或其他 HTTP 客户端的请求和 HTTP 服务器上的数据库或应用程序之间的中间层。
+
+ 1）实现public class HelloServlet extends HttpServlet
+ 2）web.xml中进行配置
+
+ ## 生命周期：
+ 1）init()---该方法被设计只调用一次
+ 2)service()---每次服务器接受一个servlet请求时，服务器都会产生一个新的线程并调用服务
+ 3)destroy()---方法调用一次。
+
+

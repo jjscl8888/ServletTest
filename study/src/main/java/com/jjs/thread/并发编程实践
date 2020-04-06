@@ -8,3 +8,36 @@
 2）加锁机制：
     内置锁 synchronized
         重入
+
+线程安全：
+    1）线程封闭：
+    1.1）Ad-hoc线程封闭：程序控制实现
+    1.2）堆栈封闭：局部变量，无并发问题
+    1.3）ThreadLocal线程封闭：比较好，注意。
+        如果使用子线程继承同一个内容时候，使用InheritableThreadLocal
+        如果使用线程池时候，可以考虑是用阿里的封装类或者自己封装Runable
+
+
+线程安全和不安全类
+        不安全             安全
+    StringBuilder----StringBuffer
+    SimpleDateFormat ---- joda-time(DateTimeFormatter)
+    ArrayList---Vector/Stack
+    HashMap---HashTable\ConcurrentHashMap
+    Collection---Collections.synchronizedXXX
+
+    ArrayList --> CopyOnWriteArrayList(不适合实时条件/适合读多写少/量大容易发生GC)
+    HashSet --> CopyOnWriteArraySet
+    TreeSet --> ConcurrentSkipListSet
+
+
+AQS--（AbstractQueuedSynchronize）
+1）同步组件
+    CountDownLock
+    ReentrantLock
+    Semaphore
+    Condition
+    FutureTask
+    CyclicBarrier（await---加1）
+    StampLock--有乐观锁
+

@@ -1,8 +1,12 @@
 package com.jjs.thread;
 
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -270,6 +274,28 @@ public class ThreadTest {
         }
     }
 
+    private final static DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormat.forPattern("yyyyMMdd");
+    @Test
+    public void test9() {
+        System.out.println(DateTime.parse("20200406", DATE_TIME_FORMATTER).toDate());
+    }
+
+    @Test
+    public void test10() {
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("1");
+        strings.add("3");
+        Iterator<String> iterator = strings.iterator();
+//        while (iterator.hasNext()) {
+//            String next = iterator.next();
+//            if (next.equalsIgnoreCase("1")) {
+//                iterator.remove();
+//            }
+//        }
+        boolean aa = strings.removeIf(a -> a.equalsIgnoreCase("1"));
+        System.out.println(aa);
+
+    }
 }
 
 class R1 implements Runnable {

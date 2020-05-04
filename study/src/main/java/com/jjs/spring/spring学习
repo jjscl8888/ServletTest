@@ -1,0 +1,20 @@
+##
+   生命周期：
+1）对bean是容器初始化（beanFactoryPostProcessor）
+2）对bean的属性进行赋值
+3）对Aware接口实现类
+4）对bean容器实例化（beanPostProcessor)
+
+## 装配Bean
+一）声明Bean
+1）通过构造函数
+2）当是单列对象，且构造函数是私有的，此时通过factory-method属性装配，或者实现FactoryBean接口
+
+二）注入Bean属性
+1）自动装配Bean属性
+1.2）byName/byType/constructor
+
+2）使用注解装配
+2.1）默认是禁止注解装配。开启方式<context:annotation-config>
+2.2）@Component
+2.3）定义一个配置类@Configuration/@Bean

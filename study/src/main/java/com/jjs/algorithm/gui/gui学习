@@ -1,0 +1,69 @@
+## 创建简单窗口
+    // 将创建任务放入一个队列中，会使用其他线程创建
+    EventQueue.invokeLater(() ->{
+        // 设置标题welcome
+        JFrame jf = new JFrame("welcome");
+        //设置大小
+        jf.setSize(500,500);
+        // 窗口大小是否可改变
+        jf.setResizable(false);
+        // 设置关闭窗口按键作用
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // 设置是否展示窗口
+        jf.setVisible(true);
+    });
+
+    # JFrame 表示一个窗口
+    # JPanel 表示一个面板
+
+## 自定义gui类
+public class AlgoGui extends JFrame {
+
+    private Integer guiWidth;
+    private Integer guiHeight;
+
+    public AlgoGui(String title, Integer width, Integer height) throws HeadlessException {
+        super(title);
+
+        this.guiWidth = width;
+        this.guiHeight = height;
+
+        定义一个画板，并放置窗口中
+        GuiJpanel guiJpanel = new GuiJpanel();
+        setContentPane(guiJpanel);
+
+        // 该方法使得窗口大小和画板大小自适应
+        pack();
+
+        setResizable(false);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setVisible(true);
+    }
+
+    public Integer getGuiWidth() {
+        return guiWidth;
+    }
+
+    public Integer getGuiHeight() {
+        return guiHeight;
+    }
+
+    private class GuiJpanel extends JPanel {
+
+        // 覆盖父类的方法
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            g.setColor(Color.red);
+            g.drawOval(100,100,50,50);
+        }
+
+        // 覆盖父类该方法，则无需设置面板大小
+        @Override
+        public Dimension getPreferredSize() {
+            return new Dimension(guiWidth,guiHeight);
+        }
+    }
+}
+
+## Graphics2D类使用

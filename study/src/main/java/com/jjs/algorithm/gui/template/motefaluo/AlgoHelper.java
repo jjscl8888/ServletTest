@@ -1,4 +1,4 @@
-package com.jjs.algorithm.gui;
+package com.jjs.algorithm.gui.template.motefaluo;
 
 import javax.swing.*;
 import java.awt.*;
